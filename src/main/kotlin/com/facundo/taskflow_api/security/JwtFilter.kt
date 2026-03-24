@@ -12,7 +12,7 @@ import org.springframework.web.filter.OncePerRequestFilter
 class JwtFilter(
     private val jwtService: JwtService
 ) : OncePerRequestFilter() {
-
+//intercept each request request before controller
     override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,

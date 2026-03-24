@@ -13,6 +13,7 @@ class AuthService(
     private val userRepository: UserRepository,
     private val jwtService: JwtService
 ) {
+    //hash for each
     private val encoder = BCryptPasswordEncoder()
 
     fun register(user: User): AuthResponse {
