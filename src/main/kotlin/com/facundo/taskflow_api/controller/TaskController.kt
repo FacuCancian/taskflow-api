@@ -1,5 +1,6 @@
 package com.facundo.taskflow_api.controller
 
+import com.facundo.taskflow_api.dto.TaskResponse
 import com.facundo.taskflow_api.model.Task
 import com.facundo.taskflow_api.service.TaskService
 import org.springframework.http.HttpStatus
@@ -11,26 +12,26 @@ class TaskController(
     private val taskService: TaskService
 ) {
     @GetMapping
-    fun getAll(@RequestParam userId: Long): List<Task> =
+    fun getAll(@RequestParam userId: Long): List<TaskResponse> =
         taskService.getAllByUser(userId)
 
     @GetMapping("/filter")
     fun getByCompleted(
         @RequestParam userId: Long,
         @RequestParam completed: Boolean
-    ): List<Task> = taskService.getByUserAndCompleted(userId, completed)
+    ): List<TaskResponse> = taskService.getByUserAndCompleted(userId, completed)
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    fun create(@RequestBody task: Task): Task =
+    fun create(@RequestBody task: Task): TaskResponse =
         taskService.create(task)
 
     @PutMapping("/{id}")
-    fun update(@PathVariable id: Long, @RequestBody task: Task): Task =
+    fun update(@PathVariable id: Long, @RequestBody task: Task): TaskResponse =
         taskService.update(id, task)
 
     @PatchMapping("/{id}/complete")
-    fun complete(@PathVariable id: Long): Task =
+    fun complete(@PathVariable id: Long): TaskResponse =
         taskService.complete(id)
 
     @DeleteMapping("/{id}")

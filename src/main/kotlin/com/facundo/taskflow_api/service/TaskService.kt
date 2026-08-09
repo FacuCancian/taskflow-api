@@ -1,5 +1,8 @@
 package com.facundo.taskflow_api.service
 
+import com.facundo.taskflow_api.dto.CategoryResponse
+import com.facundo.taskflow_api.dto.TaskResponse
+import com.facundo.taskflow_api.dto.UserResponse
 import com.facundo.taskflow_api.model.Task
 import com.facundo.taskflow_api.repository.TaskRepository
 import org.springframework.stereotype.Service
@@ -8,16 +11,26 @@ import org.springframework.stereotype.Service
 class TaskService(
     private val taskRepository: TaskRepository
 ) {
-    fun getAllByUser(userId: Long): List<Task> =
-        taskRepository.findByUserId(userId)
+    private fun Task.toResponse() = TaskResponse(
+        id = id,
+        title = title,
+        description = description,
+        completed = completed,
+        createdAt = createdAt,
+        user = user?.let { UserResponse(it.id, it.email, it.name) },
+        category = category?.let { CategoryResponse(it.id, it.name) }
+    )
 
-    fun getByUserAndCompleted(userId: Long, completed: Boolean): List<Task> =
-        taskRepository.findByUserIdAndCompleted(userId, completed)
+    fun getAllByUser(userId: Long): List<TaskResponse> =
+        taskRepository.findByUserId(userId).map { it.toResponse() }
 
-    fun create(task: Task): Task =
-        taskRepository.save(task)
+    fun getByUserAndCompleted(userId: Long, completed: Boolean): List<TaskResponse> =
+        taskRepository.findByUserIdAndCompleted(userId, completed).map { it.toResponse() }
 
-    fun update(id: Long, updated: Task): Task {
+    fun create(task: Task): TaskResponse =
+        taskRepository.save(task).toResponse()
+
+    fun update(id: Long, updated: Task): TaskResponse {
         val existing = taskRepository.findById(id)
             .orElseThrow { Exception("Tarea no encontrada") }
         return taskRepository.save(
@@ -26,13 +39,13 @@ class TaskService(
                 description = updated.description,
                 category = updated.category
             )
-        )
+        ).toResponse()
     }
 
-    fun complete(id: Long): Task {
+    fun complete(id: Long): TaskResponse {
         val task = taskRepository.findById(id)
             .orElseThrow { Exception("Tarea no encontrada") }
-        return taskRepository.save(task.copy(completed = true))
+        return taskRepository.save(task.copy(completed = true)).toResponse()
     }
 
     fun delete(id: Long) = taskRepository.deleteById(id)
